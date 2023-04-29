@@ -9,10 +9,11 @@ export type TabsProps = Listeners & {
 
 export function Tabs({
   tabs,
-  onTabActive: onTabActive,
-  onTabClose: onTabClose,
+  onTabActive,
+  onTabClose,
   onTabReorder,
   onContextMenu,
+  onNewTab,
 }: TabsProps) {
   const tabsRef = useRef<TabProperties[]>([]);
   const moveIndex = useRef({ tabId: "", fromIndex: -1, toIndex: -1 });
@@ -41,9 +42,10 @@ export function Tabs({
 
   const { ChromeTabs, addTab, activeTab, removeTab, updateTab } = useChromeTabs(
     {
-      onTabClose: onTabClose,
-      onTabActive: onTabActive,
+      onTabClose,
+      onTabActive,
       onContextMenu,
+      onNewTab,
       onDragEnd: handleDragEnd,
       onTabReorder: handleTabReorder,
     }

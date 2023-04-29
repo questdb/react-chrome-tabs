@@ -1,6 +1,6 @@
 import Draggabilly from "draggabilly";
 
-const TAB_CONTENT_MARGIN = 9;
+const TAB_CONTENT_MARGIN = 10;
 const TAB_CONTENT_OVERLAP_DISTANCE = 1;
 
 const TAB_OVERLAP_DISTANCE =
@@ -12,8 +12,15 @@ const TAB_CONTENT_MAX_WIDTH = 240;
 const TAB_SIZE_SMALL = 84;
 const TAB_SIZE_SMALLER = 60;
 const TAB_SIZE_MINI = 48;
+const NEW_TAB_BUTTON_AREA = 90;
 
 const noop = (_: any) => {};
+
+const newTabButtonTemplate = `
+    <div class="new-tab-button-wrapper">
+      <button class="new-tab-button">✚</button>
+    </div>
+  `;
 
 const closest = (value: number, array: number[]) => {
   let closest = Infinity;
@@ -82,6 +89,7 @@ class ChromeTabs {
     this.setupStyleEl();
     this.setupEvents();
     this.layoutTabs();
+    this.setupNewTabButton();
     this.setupDraggabilly();
   }
 
@@ -112,6 +120,14 @@ class ChromeTabs {
     //     this.addTab();
     // });
 
+    this.el.addEventListener("click", ({ target }) => {
+      if (target instanceof Element) {
+        if (target.classList.contains("new-tab-button")) {
+          this.emit("newTab", {});
+        }
+      }
+    });
+
     this.tabEls.forEach((tabEl) => this.setTabCloseEventListener(tabEl));
   }
 
@@ -120,12 +136,12 @@ class ChromeTabs {
   }
 
   get tabContentEl() {
-    return this.el.querySelector(".chrome-tabs-content")!;
+    return this.el.querySelector<HTMLElement>(".chrome-tabs-content")!;
   }
 
   get tabContentWidths() {
     const numberOfTabs = this.tabEls.length;
-    const tabsContentWidth = this.tabContentEl!.clientWidth;
+    const tabsContentWidth = this.el.clientWidth - NEW_TAB_BUTTON_AREA;
     const tabsCumulativeOverlappedWidth =
       (numberOfTabs - 1) * TAB_CONTENT_OVERLAP_DISTANCE;
     const targetWidth =
@@ -213,6 +229,24 @@ class ChromeTabs {
           `;
     });
     this.styleEl.innerHTML = styleHTML;
+
+    const tabsLen = this.tabEls.length;
+    if (
+      this.el.offsetWidth - this.tabContentEl.offsetWidth >
+        NEW_TAB_BUTTON_AREA + TAB_CONTENT_MARGIN / 2 ||
+      tabsLen < 5
+    ) {
+      this.tabContentEl.style.width = `${
+        (this.tabEls[0] ? this.tabEls[0].offsetWidth * tabsLen : 0) -
+        (tabsLen > 0
+          ? tabsLen * TAB_CONTENT_MARGIN * 2 -
+            TAB_CONTENT_MIN_WIDTH +
+            TAB_CONTENT_MARGIN
+          : 0)
+      }px`;
+      this.tabContentEl.nextElementSibling!.classList.remove("overflow-shadow");
+    } else
+      this.tabContentEl.nextElementSibling!.classList.add("overflow-shadow");
   }
 
   createNewTabEl() {
@@ -423,6 +457,14 @@ class ChromeTabs {
     }
     this.emit("tabReorder", { tabEl, originIndex, destinationIndex });
     this.layoutTabs();
+  }
+
+  setupNewTabButton() {
+    const newButtonEl = this.tabContentEl.parentNode?.querySelector(".new-tab-button-wrapper")
+    if (!newButtonEl) {
+      this.tabContentEl.insertAdjacentHTML("afterend", newTabButtonTemplate);
+      this.layoutTabs();
+    }
   }
 }
 
