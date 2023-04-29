@@ -15,6 +15,7 @@ export type Listeners = {
   onDragBegin?: () => void;
   onDragEnd?: () => void;
   onContextMenu?:(tabId: string, event: MouseEvent) => void;
+  onNewTab?: () => void;
 };
 
 const ChromeTabsWrapper = forwardRef<HTMLDivElement, any>((props, ref) => {
@@ -116,6 +117,17 @@ export function useChromeTabs(listeners: Listeners) {
       ele?.removeEventListener("dragEnd", listener);
     };
   }, [listeners.onDragEnd]);
+
+  useEffect(() => {
+    const listener = () => {
+      listeners.onNewTab?.();
+    };
+    const ele = chromeTabsRef.current?.el;
+    ele?.addEventListener("newTab", listener);
+    return () => {
+      ele?.removeEventListener("newTab", listener);
+    };
+  }, [listeners.onNewTab]);
 
   const addTab = useCallback((tab: TabProperties) => {
     chromeTabsRef.current?.addTab(tab);

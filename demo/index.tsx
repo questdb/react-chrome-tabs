@@ -59,6 +59,13 @@ function App() {
   };
 
   const closeAll = () => setTabs([]);
+
+  const newTab = () => {
+    setTabs([
+      ...tabs.map((x) => ({ ...x, active: false })),
+      { id: `${Math.random()}`, title: "New tab", active: true },
+    ]);
+  };
   
   return (
     <div>
@@ -66,6 +73,7 @@ function App() {
         onTabClose={close}
         onTabReorder={reorder}
         onTabActive={active}
+        onNewTab={newTab}
         tabs={tabs}
       ></Tabs>
       <button onClick={addTabWithIcon}>Add Tab with icon</button>
