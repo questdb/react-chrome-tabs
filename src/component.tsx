@@ -5,10 +5,14 @@ import { TabProperties } from "./chrome-tabs";
 
 export type TabsProps = Listeners & {
   tabs: TabProperties[];
+  className?: string;
+  darkMode?: boolean;
 };
 
 export function Tabs({
   tabs,
+  className,
+  darkMode,
   onTabActive,
   onTabClose,
   onTabReorder,
@@ -18,16 +22,19 @@ export function Tabs({
   const tabsRef = useRef<TabProperties[]>([]);
   const moveIndex = useRef({ tabId: "", fromIndex: -1, toIndex: -1 });
 
-  const handleTabReorder = useCallback((tabId, fromIndex, toIndex) => {
-    const [dest] = tabsRef.current.splice(fromIndex, 1);
-    tabsRef.current.splice(toIndex, 0, dest);
-    const beforeFromIndex = moveIndex.current.fromIndex;
-    moveIndex.current = {
-      tabId,
-      fromIndex: beforeFromIndex > -1 ? beforeFromIndex : fromIndex,
-      toIndex,
-    };
-  }, []);
+  const handleTabReorder = useCallback(
+    (tabId: string, fromIndex: number, toIndex: number) => {
+      const [dest] = tabsRef.current.splice(fromIndex, 1);
+      tabsRef.current.splice(toIndex, 0, dest);
+      const beforeFromIndex = moveIndex.current.fromIndex;
+      moveIndex.current = {
+        tabId,
+        fromIndex: beforeFromIndex > -1 ? beforeFromIndex : fromIndex,
+        toIndex,
+      };
+    },
+    []
+  );
   const handleDragEnd = useCallback(() => {
     const { tabId, fromIndex, toIndex } = moveIndex.current;
     if (fromIndex > -1) {
@@ -77,5 +84,6 @@ export function Tabs({
     }
     tabsRef.current = tabs;
   }, [tabs]);
-  return <ChromeTabs />;
+
+  return <ChromeTabs className={className} darkMode={darkMode} />;
 }

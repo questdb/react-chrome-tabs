@@ -14,15 +14,25 @@ export type Listeners = {
   onTabReorder?: (tabId: string, fromIdex: number, toIndex: number) => void;
   onDragBegin?: () => void;
   onDragEnd?: () => void;
-  onContextMenu?:(tabId: string, event: MouseEvent) => void;
+  onContextMenu?: (tabId: string, event: MouseEvent) => void;
   onNewTab?: () => void;
 };
 
-const ChromeTabsWrapper = forwardRef<HTMLDivElement, any>((props, ref) => {
+const ChromeTabsWrapper = forwardRef<
+  HTMLDivElement,
+  { className?: string; darkMode?: boolean }
+>((props, ref) => {
+  const classList = ["chrome-tabs"];
+  if (props.darkMode) {
+    classList.push("chrome-tabs-dark-theme");
+  }
+  if (props.className) {
+    classList.push(props.className);
+  }
   return (
     <div
       ref={ref}
-      className="chrome-tabs"
+      className={classList.join(" ")}
       style={{ "--tab-content-margin": "9px" } as CSSProperties}
     >
       <div className="chrome-tabs-content"></div>
@@ -162,9 +172,13 @@ export function useChromeTabs(listeners: Listeners) {
     }
   }, []);
 
-  const ChromeTabs = useCallback(() => {
-    return <ChromeTabsWrapper ref={ref} />;
-  }, []);
+  const ChromeTabs = useCallback(function ChromeTabs(props: {
+    className?: string;
+    darkMode?: boolean;
+  }) {
+    return <ChromeTabsWrapper {...props} ref={ref} />;
+  },
+  []);
 
   return {
     ChromeTabs,

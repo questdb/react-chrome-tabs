@@ -4,7 +4,8 @@ import { render } from "react-dom";
 import { Tabs } from "../src";
 import { TabProperties } from "../src/chrome-tabs";
 import "../css/chrome-tabs.css";
-import './css/demo.css'
+import "../css/chrome-tabs-dark-theme.css";
+import "./css/demo.css";
 
 import fb from "./images/facebook-favicon.ico";
 import google from "./images/google-favicon.ico";
@@ -14,6 +15,7 @@ function App() {
   const [tabs, setTabs] = useState<TabProperties[]>([
     { id: "abc", favicon: fb, title: "测试", active: true },
   ]);
+  const [darkMode, setDarkMode] = useState(false);
 
   const addTabWithIcon = () => {
     id++;
@@ -25,7 +27,7 @@ function App() {
         favicon: tabs.length % 2 ? fb : google,
       },
     ]);
-  }
+  };
 
   const addTabWithIconClass = () => {
     id++;
@@ -34,11 +36,10 @@ function App() {
       {
         id: `tab-id-${id}`,
         title: `New Tabs ${id}`,
-        faviconClass: ' emoji'
+        faviconClass: " emoji",
       },
     ]);
-  }
-
+  };
 
   const active = (id: string) => {
     setTabs(tabs.map((tab) => ({ ...tab, active: id === tab.id })));
@@ -49,16 +50,20 @@ function App() {
   };
 
   const reorder = (tabId: string, fromIndex: number, toIndex: number) => {
-    const beforeTab = tabs.find(tab => tab.id === tabId);
+    const beforeTab = tabs.find((tab) => tab.id === tabId);
     if (!beforeTab) {
-        return;
+      return;
     }
-    let newTabs = tabs.filter(tab => tab.id !== tabId);
+    let newTabs = tabs.filter((tab) => tab.id !== tabId);
     newTabs.splice(toIndex, 0, beforeTab);
     setTabs(newTabs);
   };
 
   const closeAll = () => setTabs([]);
+
+  const toggleDarkMode = () => {
+    setDarkMode((darkMode) => !darkMode);
+  };
 
   const newTab = () => {
     setTabs([
@@ -66,10 +71,11 @@ function App() {
       { id: `${Math.random()}`, title: "New tab", active: true },
     ]);
   };
-  
+
   return (
     <div>
       <Tabs
+        darkMode={darkMode}
         onTabClose={close}
         onTabReorder={reorder}
         onTabActive={active}
@@ -79,6 +85,7 @@ function App() {
       <button onClick={addTabWithIcon}>Add Tab with icon</button>
       <button onClick={addTabWithIconClass}>Add Tab with iconClass</button>
       <button onClick={closeAll}>Close All</button>
+      <button onClick={toggleDarkMode}>Dark Mode</button>
     </div>
   );
 }
